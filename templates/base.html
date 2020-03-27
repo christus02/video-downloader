@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  {% block head %}
+  <title>Free Video Downloader</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  {% endblock %}
+</head>
+<body>
+
+  {% block body %}
+<!-- NAV Bar -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="https://freedownloader.ml">Free Downloader</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="https://freedownloader.ml">Home</a></li>
+      <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Feedback<span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="/issues">Issues</a></li>
+          <li><a href="/featurerequest">Feature Request</a></li>
+        </ul>
+      </li>
+      <li><a href="#">Contact us</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <!--<li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>-->
+      <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+    </ul>
+  </div>
+</nav>
+  
+<!-- Jumbotron -->
+<div class="jumbotron text-center">
+    <h1>Download Videos for FREE</h1>
+    <p>Download Videos and Crop them for Free</p>
+</div>
+<br>
+{% endblock %}
+
+{% block content %}{% endblock %}
+
+
+</body>
+</html> 

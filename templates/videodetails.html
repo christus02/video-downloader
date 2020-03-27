@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <div class="container">
+    <form action="/download" method="POST">
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-6">
+      <a href = "#" class = "thumbnail">
+        <img src = "{{ thumbnail }}" alt = "Video Thumbnail">
+     </a>  
+              <div class="panel panel-default">
+                <div class = "panel-heading">
+                  <h3 class = "panel-title">
+                     Video Title
+                  </h3>
+               </div>
+                
+                <div class="panel-body">
+                  {{ title }}
+                </div>
+              </div>
+            </div>
+
+
+          <div class="col-sm-6">
+      {% if (duration != "0:00:00") %}
+      {% set duration_split = duration.split(':') %}
+      <div class="panel panel-default">
+        <div class = "panel-heading">
+          <h3 class = "panel-title">
+             Video Cropping Options
+          </h3>
+       </div>
+        <div class="panel-body">
+          
+          {% if duration_split[0] | int > 0 %}
+          <b>{{ duration_split[0] }}</b> Hours 
+          {% endif %}
+
+          {% if duration_split[1] | int > 0 %}
+          <b>{{ duration_split[1] }}</b> Minutes  
+          {% endif %}
+
+          {% if duration_split[2] | int > 0 %}
+          <b>{{ duration_split[2] }}</b> Seconds
+          {% endif %}
+
+
+          <div class="checkbox">
+            <label><input type="checkbox" name="trim" data-toggle="collapse" data-target="#expand"><b>Trim the Video</b></label>
+          </div>
+          <br>
+          <div id="expand" class="collapse">
+            <div class="form-group">
+              <label for="stime">Start Time in HH:MM:SS:</label> <input type="stime" class="form-control" id="stime" placeholder="Start Time in HH:MM:SS Format" name="stime"><br>
+              <label for="etime">End Time in HH:MM:SS:</label> <input type="etime" class="form-control" id="etime" placeholder="End Time in HH:MM:SS Format" name="etime"><br>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+	    {% endif %}
+
+      <div class = "panel panel-default">
+        <div class = "panel-heading">
+           <h3 class = "panel-title">
+              Audio Options
+           </h3>
+        </div>
+        
+        <div class = "panel-body">
+          <div class="checkbox">
+            <label><input type="checkbox" name="onlyaudio"><b>I need only the Audio of the Video</b></label>
+          </div><br>
+        </div>
+      </div>
+        </div>
+     </div>
+
+        <div class="hidden"><input type="text" id="uuid" name="uuid" value="{{ uuid }}"><br></div>
+        
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary btn-lg">DOWNLOAD</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  {% endblock %}
+
+</body>
+</html>
