@@ -84,9 +84,9 @@ def getVideoDetails():
             videoUrl = request.form.get('video')
         except:
             inputError = True
-            return ("<h3>ERROR: Please enter the Video URL<br>Go back to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+            return render_template('error.html', error_message="Please enter the Video URL")
         if (videoUrl == ""):
-            return ("<h3>ERROR: Please enter the Video URL<br>Go back to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+            return render_template('error.html', error_message="Please enter the Video URL")
 
         dbhandler.writeActualLink(mysql,videoUrl, UUID)
 
@@ -124,9 +124,9 @@ def downloadVideo():
             eTimeValid = validTimeConverter(eTime)
 
             if sTimeValid is None:
-                return("<h3>ERROR: Please Enter the Start Time in the Format of HH:MM:SS<br>Go back to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+                return render_template('error.html', error_message="Please Enter the Start Time in the Format of HH:MM:SS")
             if eTimeValid is None:
-                return("<h3>ERROR: Please Enter the End Time in the Format of HH:MM:SS<br>Go back to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+                return render_template('error.html', error_message="Please Enter the End Time in the Format of HH:MM:SS")
 
             # Validation of Start Time and End Time
             sTimeSplit = sTime.split(":")
@@ -136,13 +136,13 @@ def downloadVideo():
             eTimeSeconds = int(datetime.timedelta(hours=int(eTimeSplit[0]),minutes=int(eTimeSplit[1]),seconds=int(eTimeSplit[2])).total_seconds())
 
             if sTimeSeconds > videoDuration:
-                return("<h3>ERROR: Please check your Start Time. It is higher than the Video Duration<br>Go back to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+                return render_template('error.html', error_message="Please check your Start Time. It is higher than the Video Duration")
 
             if eTimeSeconds > videoDuration:
-                return("<h3>ERROR: Please check your End Time. It is higher than the Video Duration<br>Go back to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+                return render_template('error.html', error_message="Please check your End Time. It is higher than the Video Duration")
 
             if sTimeSeconds > eTimeSeconds:
-                return("<h3>ERROR: Please check your Start Time and End Time<br>Go back to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+                return render_template('error.html', error_message="Please check your Start Time and End Time")
 
     else:
         sTime = None
@@ -173,7 +173,7 @@ def issues():
         message = request.form.get('message')
 
         if (name == "" or email == "" or subject == "" or message == ""):
-            return ("<h3>ERROR: All fields are mandatory. Please fill them.<br>Go back to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+            return render_template('error.html', error_message="All fields are mandatory. Please fill them")
 
         data = dict()
         data['name'] = sanitizeInput(name)
@@ -183,7 +183,7 @@ def issues():
 
         dbhandler.writeIssue(mysql, data)
         
-        return ("<h3>Thanks for your feedback. It will be looked upon. <br>Proceed to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+        return render_template('acknowledge.html')
 
     if request.method == "GET":
         return render_template('feedback.html', title='Free Video Downloader')
@@ -198,7 +198,7 @@ def featureRequest():
         message = request.form.get('message')
 
         if (name == "" or email == "" or subject == "" or message == ""):
-            return ("<h3>ERROR: All fields are mandatory. Please fill them.<br>Go back to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+            return render_template('error.html', error_message="All fields are mandatory. Please fill them")
 
         data = dict()
         data['name'] = sanitizeInput(name)
@@ -208,7 +208,7 @@ def featureRequest():
 
         dbhandler.writeFeatureRequest(mysql, data)
         
-        return ("<h3>Thanks for your feedback. It will be looked upon. <br>Proceed to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
+        return render_template('acknowledge.html')
 
     if request.method == "GET":
         return render_template('featurerequest.html', title='Free Video Downloader')
