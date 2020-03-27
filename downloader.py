@@ -130,10 +130,10 @@ def downloadVideo():
 
             # Validation of Start Time and End Time
             sTimeSplit = sTime.split(":")
-            sTimeSeconds = int(datetime.timedelta(seconds=int(sTimeSplit[2]),hours=int(sTimeSplit[1]),minutes=int(sTimeSplit[0])).total_seconds())
+            sTimeSeconds = int(datetime.timedelta(hours=int(sTimeSplit[0]),minutes=int(sTimeSplit[1]),seconds=int(sTimeSplit[2])).total_seconds())
 
             eTimeSplit = eTime.split(":")
-            eTimeSeconds = int(datetime.timedelta(seconds=int(eTimeSplit[2]),hours=int(eTimeSplit[1]),minutes=int(eTimeSplit[0])).total_seconds())
+            eTimeSeconds = int(datetime.timedelta(hours=int(eTimeSplit[0]),minutes=int(eTimeSplit[1]),seconds=int(eTimeSplit[2])).total_seconds())
 
             if sTimeSeconds > videoDuration:
                 return("<h3>ERROR: Please check your Start Time. It is higher than the Video Duration<br>Go back to <a href=\"https://freedownloader.ml\">FreeDownloader</a> Homepage to download videos</h3>")
