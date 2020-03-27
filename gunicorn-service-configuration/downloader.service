@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve Downloader
+After=network.target
+
+[Service]
+User=<USERNAME>
+Group=www-data
+WorkingDirectory=<SOURCE CODE DIRECTORY>
+EnvironmentFile=/etc/environment
+ExecStart=/usr/local/bin/gunicorn -k gevent --worker-connections 1000 --bind 127.0.0.1:4999 --log-level debug --capture-output --error-logfile /var/log/gunicorn/error.log --access-logfile /var/log/gunicorn/access.log downloader:app
+
+[Install]
+WantedBy=multi-user.target
