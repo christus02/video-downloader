@@ -56,7 +56,7 @@ def sanitizeInput(field):
 @app.route("/")
 def landing():
 
-    return render_template('index.html', title='Free Video Downloader')
+    return render_template('index.html', title='Free Video Downloader', total_downloaded=dbhandler.getTotalDownloaded(mysql), trimmed_downloaded=dbhandler.getCroppedDownloaded(mysql), only_audio_downloaded=dbhandler.getOnlyAudioDownloaded(mysql))
 
 @app.route("/videodetails", methods = ['POST', 'GET'])
 def getVideoDetails():

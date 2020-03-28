@@ -106,6 +106,30 @@ def getActualLinkFromUUID(mysql,uuid):
     cur.close()
     return actual_link[0]
 
+def getTotalDownloaded(mysql):
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT COUNT(*) FROM %s WHERE downloaded = 1" % (DB_TABLE))
+    total_downloaded = cur.fetchone()
+    cur.close()
+    return total_downloaded[0]
+
+def getCroppedDownloaded(mysql):
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT COUNT(*) FROM %s WHERE downloaded = 1 and trimmed = 1" % (DB_TABLE))
+    cropped_downloaded = cur.fetchone()
+    cur.close()
+    return cropped_downloaded[0]
+
+def getOnlyAudioDownloaded(mysql):
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT COUNT(*) FROM %s WHERE downloaded = 1 and only_audio = 1" % (DB_TABLE))
+    only_audio_downloaded = cur.fetchone()
+    cur.close()
+    return only_audio_downloaded[0]
+
 def writeVideoInfo(mysql,uuid, videoInfo):
     '''
     Function to write Video Info to the DB

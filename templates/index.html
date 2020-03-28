@@ -13,4 +13,14 @@
   </form>
 </div>
 
+<div class="footer navbar-fixed-bottom col-sm-6 col-sm-offset-1 text-center">
+<div class="container">
+  <h2>Download Stats</h2>
+  <button type="button" class="btn btn-primary">Total Downloads  <span class="badge">{{ total_downloaded }}</span></button>
+  <button type="button" class="btn btn-primary">Cropped Downloads  <span class="badge">{{ trimmed_downloaded }}</span></button>
+  <button type="button" class="btn btn-primary">Audio Only Downloads  <span class="badge">{{ only_audio_downloaded }}</span></button>
+  <br><br>
+</div>
+</div>
+
 {% endblock %}

@@ -49,7 +49,7 @@
 
 
           <div class="checkbox">
-            <label><input type="checkbox" name="trim" data-toggle="collapse" data-target="#expand"><b>Trim the Video</b></label>
+            <label><input type="checkbox" id="trim" name="trim" data-toggle="collapse" data-target="#expand"><b>Trim the Video</b></label>
           </div>
           <br>
           <div id="expand" class="collapse">
@@ -64,7 +64,7 @@
 
 	    {% endif %}
 
-      <div class = "panel panel-default">
+      <div class = "panel panel-default" id="audio-options">
         <div class = "panel-heading">
            <h3 class = "panel-title">
               Audio Options
@@ -79,6 +79,22 @@
       </div>
         </div>
      </div>
+
+     <!-- Enabled both Video and Audio Options
+     <script>
+$("#trim").click(function() {
+  if ($(this).is(":checked")) {
+    $("#audio-options").hide();
+  } else {
+    $("#audio-options").show();
+  }
+});
+</script>
+-->
+
+       <!-- Enabled both Video and Audio Options
+       <p> <b>Note:</b> You can either Crop the Video or RIP the Audio from the Video, but not both at the same time </p>
+       -->
 
         <div class="hidden"><input type="text" id="uuid" name="uuid" value="{{ uuid }}"><br></div>
         
