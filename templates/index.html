@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div class="container">
-  <form action="/videodetails" method="POST">
-    <div class="form-group">
-      <label for="video">Video URL:</label> <input type="video" class="form-control" id="video" placeholder="Paste the URL of the Video" name="video">
-    </div>
-    <br>
-    <div class="text-center">
-      <button type="submit" class="btn btn-primary btn-lg">START</button>
+<form action="/videodetails" method="POST">
+    <div class="input-group input-group-lg">
+      <input type="text" class="form-control" placeholder="Paste the Video Link" id="video" name="video">
+      <div class="input-group-btn">
+        <button class="btn btn-success" type="submit"><i class="glyphicon glyphicon-download"></i></button>
+      </div>
     </div>
   </form>
 </div>
+
 {% endblock %}
