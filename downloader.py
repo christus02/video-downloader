@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-from flask import Flask, request, Response, render_template, send_file, redirect, url_for
+from flask import Flask, request, Response, render_template, send_file, redirect, url_for, flash
+import flask_login
 import sys
 import os
 import time
@@ -14,6 +15,7 @@ import MySQLdb # To Escape and unescape strings before inserting to DB
 from youtubeDownloader import youtubeDownloader
 import dbhandler
 from flask_mysqldb import MySQL
+import hashlib
 
 app = Flask(__name__)
 
@@ -23,11 +25,52 @@ app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER')
 app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD')
 app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB')
 
+# To maintain sessions via cookies
+app.config['SECRET_KEY'] = b')\xcaN.7\x05\x17\x08w\x91\x03\x19\xbfh\x8e\xf8'
+
 UUID = None
 BASE_PATH = os.environ.get('HOME') + '/Storage/YouTubeDownloads/'
 BASE_PATH_UUID = BASE_PATH
 
 mysql = MySQL(app)
+
+#Flask Login
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
+
+class User(flask_login.UserMixin):
+    pass
+
+@login_manager.user_loader
+def user_loader(userid):
+
+    user = User()
+    user.id = userid
+    return user
+
+
+@login_manager.request_loader
+def request_loader(request):
+
+    userid = request.form.get('userid') # User inputted
+    passwd = request.form.get('password') # User inputted
+
+    user = User()
+    user.id = userid
+
+    #Check if User exists
+    if not dbhandler.checkIfUserExists(mysql, userid):
+        return #User not existing
+    else:
+        inputPasswordHash = hashPassword(passwd)
+        userPasswordHash = dbhandler.retrievePasswordHash(mysql, userid)
+
+    user.is_authenticated = inputPasswordHash == userPasswordHash
+
+    return user
+
+
 
 # Utils Functions
 def validTimeConverter(time):
@@ -52,10 +95,20 @@ def sanitizeInput(field):
     # For now trimming the string to 10K characters
     return field[:10000]
 
+def hashPassword(passwd, digest='sha1'):
+    '''
+    Function to do a SHA1 Hash of a string
+    '''
 
-@app.route("/")
+    hashed = None
+    if digest == 'sha1':
+        hashed = hashlib.sha1(passwd.encode())
+
+    return hashed.hexdigest()
+
+
+@app.route("/", methods = ['POST', 'GET'])
 def landing():
-
     return render_template('index.html', title='Free Video Downloader', total_downloaded=dbhandler.getTotalDownloaded(mysql), trimmed_downloaded=dbhandler.getCroppedDownloaded(mysql), only_audio_downloaded=dbhandler.getOnlyAudioDownloaded(mysql))
 
 @app.route("/videodetails", methods = ['POST', 'GET'])
@@ -212,4 +265,59 @@ def featureRequest():
 
     if request.method == "GET":
         return render_template('featurerequest.html', title='Free Video Downloader')
+
+
+@app.route("/maintenance", methods = ['GET'])
+def maintenance():
+    return render_template('maintenance.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+
+    userid = request.form.get('userid') # User inputted
+    passwd = request.form.get('password') # User inputted
+
+    #Check if User exists
+    if not dbhandler.checkIfUserExists(mysql, userid):
+        return render_template('error.html', error_message="User Does not Exist. Please refrain trying again if you are not a valid user")
+    else:
+        inputPasswordHash = hashPassword(passwd)
+        userPasswordHash = dbhandler.retrievePasswordHash(mysql, userid)
+        if inputPasswordHash == userPasswordHash:
+            user = User()
+            user.id = userid
+            flask_login.login_user(user)
+            return redirect(url_for('reportsSuccessfulDownloads'))
+        else:
+            return render_template('error.html', error_message="Wrong Credentials. Please refrain trying again if you are not a valid user")
+
+
+@app.route('/reports/successfuldownloads')
+@flask_login.login_required
+def reportsSuccessfulDownloads():
+    successfulDownloads = dbhandler.reportSuccessfulDownloads(mysql)
+    tableStr = ""
+    for row in successfulDownloads:
+        rowStr = ""
+        #date, title, actual_link, downloaded_file_name, trimmed, only_audio, duration
+        rowStr = "<tr><td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>" % (str(row[0]),str(row[1]),str(row[2]),str(row[3]),str(row[4]),str(row[5]),str(row[6]))
+        tableStr = tableStr + rowStr
+
+    return render_template('successfuldownloads.html', table_row=tableStr)
+
+
+@app.route('/logout')
+def logout():
+    flask_login.logout_user()
+    return redirect(url_for('landing'))
+
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return render_template('error.html', error_message="Unauthorized Access")
+
+
 

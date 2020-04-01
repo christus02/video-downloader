@@ -4,11 +4,13 @@ import MySQLdb # To Escape and unescape strings before inserting to DB
 from flask_mysqldb import MySQL
 import os
 
+
 # Globals
-global DB_TABLE, DB_TABLE_ISSUES, DB_TABLE_FEATURE_REQUEST
+global DB_TABLE, DB_TABLE_ISSUES, DB_TABLE_FEATURE_REQUEST, DB_TABLE_USERS
 DB_TABLE = os.environ.get('MYSQL_DB_TABLE')
 DB_TABLE_ISSUES = os.environ.get('MYSQL_DB_TABLE_ISSUES')
 DB_TABLE_FEATURE_REQUEST = os.environ.get('MYSQL_DB_TABLE_FEATURE_REQUEST')
+DB_TABLE_USERS = os.environ.get('MYSQL_DB_TABLE_USERS')
 
 # Functions for DB
 def writeActualLink(mysql,videoUrl, uuid):
@@ -114,6 +116,14 @@ def getTotalDownloaded(mysql):
     cur.close()
     return total_downloaded[0]
 
+
+def reportSuccessfulDownloads(mysql):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT date, title, actual_link, downloaded_file_name, trimmed, only_audio, duration FROM %s WHERE downloaded = 1" % (DB_TABLE))
+    successfulDownloads = cur.fetchall()
+    cur.close()
+    return successfulDownloads
+
 def getCroppedDownloaded(mysql):
 
     cur = mysql.connection.cursor()
@@ -194,6 +204,36 @@ def writeFeatureRequest(mysql, data):
         cur.execute("INSERT INTO %s(date,name,email,subject,message) VALUES (NOW(),'%s','%s','%s','%s')" % (DB_TABLE_FEATURE_REQUEST, data['name'],data['email'],data['subject'],data['message']))
     mysql.connection.commit()
     cur.close()
+
+def checkIfUserExists(mysql, userid):
+    '''
+    Function to check if a user exists in our database;
+    '''
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT COUNT(userid) FROM %s WHERE userid='%s'" % (DB_TABLE_USERS, userid))
+    userStatus = cur.fetchone()[0]
+    cur.close()
+    if int(userStatus) == 1:
+        return True
+    else:
+        return False
+
+def retrievePasswordHash(mysql, userid):
+    '''
+    Function to retrieve Password Hash for a specific User
+    '''
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT password FROM %s WHERE userid='%s'" % (DB_TABLE_USERS, userid))
+    passwordHash = cur.fetchone()[0]
+    cur.close()
+    return passwordHash
+
+
+
+
+
+
 
 
 

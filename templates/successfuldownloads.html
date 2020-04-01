@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+  <h2>Successful Downloads</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Title</th>
+        <th>Actual Link</th>
+        <th>Downloaded File Name</th>
+        <th>Trimmed</th>
+        <th>Only Audio</th>
+        <th>Duration</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ table_row|safe }}
+    </tbody>
+  </table>
+
+</div>
+
+{% endblock %}
