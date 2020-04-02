@@ -38,7 +38,6 @@ mysql = MySQL(app)
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-
 class User(flask_login.UserMixin):
     pass
 
@@ -48,7 +47,6 @@ def user_loader(userid):
     user = User()
     user.id = userid
     return user
-
 
 @login_manager.request_loader
 def request_loader(request):
@@ -69,7 +67,6 @@ def request_loader(request):
     user.is_authenticated = inputPasswordHash == userPasswordHash
 
     return user
-
 
 
 # Utils Functions
@@ -107,6 +104,7 @@ def hashPassword(passwd, digest='sha1'):
     return hashed.hexdigest()
 
 
+# Views
 @app.route("/", methods = ['POST', 'GET'])
 def landing():
     return render_template('index.html', title='Free Video Downloader', total_downloaded=dbhandler.getTotalDownloaded(mysql), trimmed_downloaded=dbhandler.getCroppedDownloaded(mysql), only_audio_downloaded=dbhandler.getOnlyAudioDownloaded(mysql))
@@ -144,15 +142,19 @@ def getVideoDetails():
         dbhandler.writeActualLink(mysql,videoUrl, UUID)
 
         dl = youtubeDownloader()
-        dl.getVideoInfo(videoUrl)
 
-        if dl.videoDuration is None:
-            dl.videoDuration = 0
-            dl.videoInfo['duration'] = 0
+        try:
+            dl.getVideoInfo(videoUrl)
 
-        dbhandler.writeVideoInfo(mysql,UUID, dl.videoInfo)
+            if dl.videoDuration is None:
+                dl.videoDuration = 0
+                dl.videoInfo['duration'] = 0
 
-        return render_template('videodetails.html', thumbnail=dl.videoThumbnail, title=dl.videoTitle, duration=str(datetime.timedelta(seconds=int(dl.videoDuration))), uuid=UUID)
+            dbhandler.writeVideoInfo(mysql,UUID, dl.videoInfo)
+            return render_template('videodetails.html', thumbnail=dl.videoThumbnail, title=dl.videoTitle, duration=str(datetime.timedelta(seconds=int(dl.videoDuration))), uuid=UUID)
+        except Exception as e:
+            dbhandler.writeError(mysql, UUID, str(e))
+            return render_template('error.html', error_message="There was an error when downloading the Video. The Video may not be available for downloading or may require Authentication. Please try with a different Video")
 
 @app.route("/download", methods = ['POST', 'GET'])
 def downloadVideo():
@@ -209,12 +211,17 @@ def downloadVideo():
         dbhandler.writeAudioOnly(mysql,uuid)
 
     video = dbhandler.getActualLinkFromUUID(mysql,uuid)
-    dl.download(video, sTime, eTime, onlyaudio, BASE_PATH_UUID)
-    filename = glob.glob(BASE_PATH_UUID+'*')
-    filename = filename[0]
-    dbhandler.writeDownloadSuccess(mysql,uuid,BASE_PATH_UUID,filename)
 
-    return send_file(filename, as_attachment=True)
+    try:
+        dl.download(video, sTime, eTime, onlyaudio, BASE_PATH_UUID)
+        filename = glob.glob(BASE_PATH_UUID+'*')
+        filename = filename[0]
+        dbhandler.writeDownloadSuccess(mysql,uuid,BASE_PATH_UUID,filename)
+        return send_file(filename, as_attachment=True)
+    except Exception as e:
+        dbhandler.writeError(mysql, uuid, str(e))
+        return render_template('error.html', error_message="There was an error when downloading the Video. The Video may not be available for downloading or may require Authentication. Please try with a different Video")
+
 
 @app.route("/issues", methods = ['POST', 'GET'])
 def issues():
@@ -274,8 +281,13 @@ def maintenance():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+
     if request.method == 'GET':
-        return render_template('login.html')
+        # If logged in, then logout the user
+        if flask_login.current_user.is_authenticated:
+            return redirect(url_for('logout'))
+        else:
+            return render_template('login.html')
 
     userid = request.form.get('userid') # User inputted
     passwd = request.form.get('password') # User inputted
@@ -318,6 +330,4 @@ def logout():
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return render_template('error.html', error_message="Unauthorized Access")
-
-
 

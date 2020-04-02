@@ -179,6 +179,19 @@ def writeVideoInfo(mysql,uuid, videoInfo):
     cur.close()
     return True
 
+def writeError(mysql,uuid,errorMessage):
+    '''
+    Function to write error message to DB
+    '''
+
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE %s SET error = 1, error_message = '%s' WHERE uuid = '%s'" % (DB_TABLE, str(errorMessage), uuid))
+    mysql.connection.commit()
+
+    cur.close()
+    return True
+
+
 def writeIssue(mysql, data):
     '''
     Function to write the bug report
