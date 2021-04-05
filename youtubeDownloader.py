@@ -75,10 +75,21 @@ class youtubeDownloader:
 
         with youtube_dl.YoutubeDL(self.ydlOpts) as ydl:
             self.logger.debug("The Output Template is "+str(self.ydlOpts['outtmpl']))
-            ydl.download([self.url])
+            try:
+                ydl.download([self.url])
+            except:
+                self.logger.debug("download:: download:: Trying with Option - force_generic_extractor=True")
+                self.ydlOpts['force_generic_extractor'] = True
+                with youtube_dl.YoutubeDL(self.ydlOpts) as ydl:
+                    ydl.download([self.url])
 
             # Generate the Filename 
-            videoInfo = ydl.extract_info(self.url, download=False)
+            try:
+                videoInfo = ydl.extract_info(self.url, download=False)
+            except:
+                self.logger.debug("download:: Trying with Option - force_generic_extractor=True")
+                videoInfo = ydl.extract_info(self.url, download=False, force_generic_extractor=True)
+
             self.filename = ydl.prepare_filename(videoInfo)
 
     def progress(self, d):
@@ -98,7 +109,11 @@ class youtubeDownloader:
             self.url = url
 
         with youtube_dl.YoutubeDL(self.ydlOpts) as ydl:
-            self.videoInfo = ydl.extract_info(self.url, download=False)
+            try:
+                self.videoInfo = ydl.extract_info(self.url, download=False)
+            except:
+                self.logger.debug("getVideoInfo:: Trying with Option - force_generic_extractor=True")
+                self.videoInfo = ydl.extract_info(self.url, download=False, force_generic_extractor=True)
             self.videoURL = self.videoInfo.get("url", None)
             self.videoId = self.videoInfo.get("id", None)
             self.videoTitle = self.videoInfo.get('title', None)
